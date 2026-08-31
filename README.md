@@ -1,6 +1,6 @@
 # python-api
 
-API desenvolvida com FastAPI para gerenciamento de instituições financeiras brasileiras (bancos), contando também com um stream de eventos em tempo real (Server-Sent Events) que emite o horário atual. O projeto utiliza SQLAlchemy como ORM, Alembic para controle de migrações do banco de dados, e Pydantic Settings para gerenciamento de configurações via variáveis de ambiente.
+API desenvolvida com FastAPI para revisão e prática de estudo de Python. Essa API simples retorna instituições financeiras contando com um stream de eventos em tempo real (Server-Sent Events) que emite o horário atual. O projeto utiliza SQLAlchemy como ORM, Alembic para controle de migrações do banco de dados, e Pydantic Settings para gerenciamento de configurações via variáveis de ambiente.
 
 ## Stack Tecnológica
 
@@ -68,13 +68,19 @@ A documentação interativa da API (Swagger) fica disponível em `http://localho
 | GET    | `/`                          | Verificação de saúde da aplicação (health check)     |
 | GET    | `/api/v1/banks/`             | Lista todas as instituições financeiras cadastradas  |
 | POST   | `/api/v1/banks/`             | Cadastra uma nova instituição financeira             |
-| GET    | `/api/v1/banks/{bank_cnpj}`  | Busca uma instituição financeira pelo CNPJ           |
+| GET    | `/api/v1/banks/{tax_id}`  | Busca uma instituição financeira pelo CNPJ           |
+| PUT    | `/api/v1/banks/{id}`         | Atualiza parcialmente uma instituição financeira pelo id |
+| DELETE | `/api/v1/banks/{id}`         | Remove uma instituição financeira pelo id            |
 | GET    | `/api/v1/clock/stream`       | Stream SSE com fuso horário e timestamp atualizados  |
 
 ## Schema de Banco (Instituição Financeira)
 
-- `cnpj` (str) — CNPJ da instituição
+- `taxId` (str) — CNPJ da instituição (coluna `tax_id`)
 - `name` (str) — Nome do banco
-- `fantasy_name` (str) — Nome fantasia da instituição
+- `fantasyName` (str) — Nome fantasia da instituição (coluna `fantasy_name`)
 - `ispb` (str, opcional) — Identificador do Sistema de Pagamentos Brasileiro
-- `compe_code` (str) — Código do Sistema de Compensação de Cheques e Outros Papéis
+- `compeCode` (str) — Código do Sistema de Compensação de Cheques e Outros Papéis (coluna `compe_code`)
+
+No `PUT`, todos os campos são opcionais (`BanksUpdate`) — apenas os campos enviados são atualizados.
+
+> Nota: `GET /api/v1/banks/{tax_id}` busca pelo campo `taxId` (coluna `tax_id`), apesar do nome do parâmetro na rota.
