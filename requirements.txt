@@ -7,3 +7,5 @@ python-dotenv
 python-multipart
 pydantic-settings
 alembic
+tzlocal
+sse_starlette
