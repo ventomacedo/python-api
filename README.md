@@ -1,80 +1,80 @@
 # python-api
 
-FastAPI service for managing Brazilian financial institutions (banks), with a Server-Sent Events clock stream. Uses SQLAlchemy for ORM, Alembic for migrations, and Pydantic Settings for config.
+API desenvolvida com FastAPI para gerenciamento de instituições financeiras brasileiras (bancos), contando também com um stream de eventos em tempo real (Server-Sent Events) que emite o horário atual. O projeto utiliza SQLAlchemy como ORM, Alembic para controle de migrações do banco de dados, e Pydantic Settings para gerenciamento de configurações via variáveis de ambiente.
 
-## Tech Stack
+## Stack Tecnológica
 
-- FastAPI
-- Uvicorn
-- SQLAlchemy
-- Alembic (migrations)
-- Pydantic Settings
-- passlib[bcrypt], python-jose[cryptography] (auth)
-- sse-starlette (Server-Sent Events)
-- tzlocal (local timezone detection)
-- SQLite (default, via `DATABASE_URL`)
+- **FastAPI** — framework web assíncrono para construção da API
+- **Uvicorn** — servidor ASGI utilizado para rodar a aplicação
+- **SQLAlchemy** — ORM para modelagem e acesso ao banco de dados
+- **Alembic** — ferramenta de migrações de banco de dados
+- **Pydantic Settings** — carregamento e validação de configurações via variáveis de ambiente
+- **passlib[bcrypt]** e **python-jose[cryptography]** — utilizados para autenticação e hashing de senhas
+- **sse-starlette** — implementação de Server-Sent Events (SSE)
+- **tzlocal** — detecção automática do fuso horário local
+- **SQLite** — banco de dados padrão do projeto (configurável via `DATABASE_URL`)
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 app/
-├── main.py              # FastAPI app entrypoint
-├── config.py            # Settings (env vars)
-├── database.py          # SQLAlchemy engine/session
+├── main.py              # Ponto de entrada da aplicação FastAPI
+├── config.py             # Configurações (variáveis de ambiente)
+├── database.py            # Engine e sessão do SQLAlchemy
 └── api/v1/
-    ├── endpoints.py      # Aggregates all v1 routers
+    ├── endpoints.py       # Agrega todas as rotas da versão v1
     ├── banks/
-    │   ├── router.py      # /api/v1/banks routes
-    │   ├── schemas.py     # Pydantic schemas
-    │   ├── models.py      # SQLAlchemy models
-    │   └── services.py    # DB access logic
+    │   ├── router.py       # Rotas de /api/v1/banks
+    │   ├── schemas.py      # Schemas Pydantic (validação de entrada/saída)
+    │   ├── models.py       # Modelos SQLAlchemy (tabelas do banco)
+    │   └── services.py     # Lógica de acesso ao banco de dados
     └── clock/
-        ├── router.py      # /api/v1/clock routes (SSE)
-        └── services.py    # Event stream generator
-alembic/                 # Migrations
+        ├── router.py       # Rotas de /api/v1/clock (SSE)
+        └── services.py     # Gerador do stream de eventos
+alembic/                  # Migrações do banco de dados
 ```
 
-## Setup
+## Configuração e Instalação
 
-1. Create virtualenv and install deps:
+1. Crie um ambiente virtual e instale as dependências:
    ```
    python -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
-2. Create `.env` in project root:
+2. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
    ```
    PROJECT_NAME=python-api
    DATABASE_URL=sqlite:///./sql_app.db
    ```
 
-3. Run migrations:
+3. Execute as migrações do banco de dados:
    ```
    alembic upgrade head
    ```
 
-4. Start server:
+4. Inicie o servidor:
    ```
    uvicorn app.main:app --reload
    ```
 
-API docs available at `http://localhost:8000/docs`.
+A documentação interativa da API (Swagger) fica disponível em `http://localhost:8000/docs`.
 
 ## Endpoints
 
-| Method | Path                        | Description                     |
-|--------|-----------------------------|----------------------------------|
-| GET    | `/`                         | Health check                     |
-| GET    | `/api/v1/banks/`            | List banks                       |
-| POST   | `/api/v1/banks/`            | Create bank                      |
-| GET    | `/api/v1/banks/{bank_cnpj}` | Get bank by CNPJ                 |
-| GET    | `/api/v1/clock/stream`      | SSE stream of timezone/timestamp |
+| Método | Rota                         | Descrição                                          |
+|--------|------------------------------|-----------------------------------------------------|
+| GET    | `/`                          | Verificação de saúde da aplicação (health check)     |
+| GET    | `/api/v1/banks/`             | Lista todas as instituições financeiras cadastradas  |
+| POST   | `/api/v1/banks/`             | Cadastra uma nova instituição financeira             |
+| GET    | `/api/v1/banks/{bank_cnpj}`  | Busca uma instituição financeira pelo CNPJ           |
+| GET    | `/api/v1/clock/stream`       | Stream SSE com fuso horário e timestamp atualizados  |
 
-## Bank Schema
+## Schema de Banco (Instituição Financeira)
 
 - `cnpj` (str) — CNPJ da instituição
 - `name` (str) — Nome do banco
 - `fantasy_name` (str) — Nome fantasia da instituição
-- `ispb` (str, optional) — Identificador do Sistema de Pagamento Brasileiro
-- `compe_code` (str) — Código do Sistema de Compensação de Cheques e Outros Papeis
+- `ispb` (str, opcional) — Identificador do Sistema de Pagamentos Brasileiro
+- `compe_code` (str) — Código do Sistema de Compensação de Cheques e Outros Papéis
